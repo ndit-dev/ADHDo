@@ -1,0 +1,84 @@
+/* 
+	BODY
+			*/
+body {
+	background-color: #181a1b !important;
+	color-scheme: dark;
+	color: #d7d4cf !important;
+	padding: 0 5px;
+}
+
+/* 
+	TASKS
+			*/
+.toggle-arrow {
+	font-size: 0.75em;
+	cursor: pointer;
+}
+.tasks {
+	display: block; /* Set this to 'block' if you want tasks to be visible by default */
+	cursor: grab; /* shows that it is drag and droppable if users using a mouse*/
+	text-indent: 20px;
+}
+.add-task-symbol {
+	font-weight: bold;
+	font-size: 1.5em;
+}
+.delete-task-icon {
+	cursor: pointer;
+	color: red; /* Change the color if desired */
+  }
+/* 
+	CATEGORIES
+				*/
+.category-title {
+	cursor: grab; /* shows that it is drag and droppable if users using a mouse*/
+	text-indent: 10px;
+	padding-top: 20px;
+  }
+.categories-container {
+}
+ /* 
+	  HAMBURGER MENU 
+					  */
+  .hamburger-menu {
+	  flex-direction: column;
+	  justify-content: space-around;
+	  width: 40px;
+	  height: 20px;
+	  position: absolute;
+	  top: 15px;
+	  right: 15px;
+	  z-index: 100;
+	  cursor: pointer;
+  }
+  .bars {
+	  display: flex;
+	  flex-direction: column;
+	  justify-content: space-between; /* This spaces the bars evenly */
+  }
+  .bar {
+	  width: 100%;
+	  height: 5px;
+	  background: black;
+	  margin: 3px 0; /* This adds 2px of space above and below each bar */
+  }
+  .nav-menu {
+	  display: none;
+	  position: absolute;
+	  width: 200px;
+	  top: 50px;
+	  right: 15px;
+	  background: white;
+	  border: 1px solid #ccc;
+	  z-index: 99;
+	  padding: 10px;
+  }
+  .nav-menu a {
+	  display: block;
+	  padding: 5px 10px;
+  }
+  .show-menu .nav-menu {
+	  display: block;
+  }
+  

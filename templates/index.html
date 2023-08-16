@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block head %}
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+
+	<!-- load a sound to be used when completing a task -->
+	<audio id="completeSound" src="{{ url_for('static', filename='complete.wav') }}"></audio>
+
+
+{% endblock %}
+
+{% block content %}
+	<h1>📋 ADHDo</h1>
+	<button id="show-add-task" class="btn"><i class="fas fa-plus"></i></button>
+	<div id="add-task-form" style="display: none;">
+		<form id="add-task-form-inner">
+			<input type="text" name="task-title" placeholder="Task title" id="task-title" required>
+			<input type="text" name="category" placeholder="Category" id="category" required>
+			<button type="submit">Add Task</button>
+		</form>
+	</div>
+
+	{% with messages = get_flashed_messages(with_categories=true) %}
+	{% if messages %}
+		{% for category, message in messages %}
+		<div class="alert alert-{{ category }}">
+			{{ message }}
+		</div>
+		{% endfor %}
+	{% endif %}
+	{% endwith %}
+	<div id="categories-container">
+	{% for category_obj, tasks in grouped_tasks.items() %}
+		<div class="category" data-category-id="{{ category_obj.id }}">
+			<div class="category-title">
+				<h3>
+					{{ category_obj.name }}
+					<span class="toggle-arrow" onclick="toggleTasks(this, {{ category_obj.id }})">
+						{% if category_obj.is_visible %}⤴{% else %}⤵{% endif %}
+					</span>
+				</h3>
+			</div>
+			<div class="tasks" id="tasks-for-category-{{ category_obj.id }}" style="
+				{% if category_obj.is_visible %}
+					display:block
+				{% else %}
+					display:none
+				{% endif %};">
+				{% for task in tasks %}
+				<div class="task" data-task-id="{{ task.id }}">
+					<input type="checkbox" class="task-complete-checkbox" name="completed" value="true" data-task-id="{{ task.id }}" {% if task.completed %}checked{% endif %}>
+					<strong>{{ task.title }}</strong>
+					<i class="fas fa-times delete-task-icon" data-task-id="{{ task.id }}"></i>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+	
+	{% endfor %}
+	</div>
+
+	<script src="/static/js/scripts/index.js"></script>
+{% endblock %}

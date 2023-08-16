@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Tasks{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<h1>List of all tasks</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+	<div class="alert alert-{{ category }}">
+	{{ message }}
+	</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+	<ul>
+		{% for task in tasks %}
+		<li>
+			{{ task.title }} (Category: {{ task.category.name if task.category else 'None' }})
+			<form action="/delete_task/{{ task.id }}" method="post" style="display:inline;">
+				<button type="submit">Delete</button>
+			</form>
+		</li>
+		{% endfor %}
+	</ul>
+{% endblock %}
