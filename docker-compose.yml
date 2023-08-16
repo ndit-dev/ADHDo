@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  adhdo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: adhdo:latest
+    ports:
+      - "80:80"
+    volumes:
+      - .:/adhdo_app
+    environment:
+      - FLASK_ENV=development
+      - IN_DOCKER=1
+    command: flask run --host=0.0.0.0 --port=80 --debug

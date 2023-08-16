@@ -15,4 +15,20 @@ I created this for my self, mainly hosting it on gitbub for the benefits of vers
 
 ## Installation and Setup
 
-Might provide it later ;)
+1. Clone the repo
+2. run
+```
+docker build -t adhdo:latest .
+docker run -p 80:80 adhdo:latest
+```
+
+## Notes to self...
+while developing dont for get to update the requirements.txt by running `pip freeze > requirements.txt` to get the required dependencies from the virtual environment if changes have been made to that.
+if dockerfile or requirements.txt has changed, or the container is not built on the local machine, run
+```
+docker-compose build
+```
+to start or restart the container with the latest changes use `docker-compose up` or `docker-compose up --build` to both build and start it in one step
+
+## dont forget
+to disable debug mode and develeopment mode before setting it production

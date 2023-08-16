@@ -33,9 +33,17 @@ app.secret_key = secrets.token_hex(16)
 ## -------- ##
 
 # Configure SQLAlchemy with SQLite database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///adhdo.db'
+# Default database path
+db_path = 'sqlite:///adhdo.db'
+
+# Check if running in Docker based on environment variable
+if os.environ.get('IN_DOCKER'):
+    db_path = 'sqlite:////adhdo_app/adhdo.db'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
 
 # Category model for storing task categories
 class Category(db.Model):
@@ -69,7 +77,9 @@ class Task(db.Model):
             'category_id': self.category.id,
         }
 
-
+# create the database
+with app.app_context():
+    db.create_all()
 
 ## ------ ##
 ## ROUTES ##
@@ -271,14 +281,6 @@ def update_category_order():
 
     return jsonify(status='success')
 
-
-
-
-## ----------------- ##
-## MAIN ENTERY POINT ##
-## ----------------- ##
-
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all() # Create database tables
-    app.run(debug=True, port=8080) # Start the Flask app on port 8080
+@app.route('/env')
+def show_env():
+    return dict(os.environ)
