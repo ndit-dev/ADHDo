@@ -1,6 +1,3 @@
-
-## TODO: Git it
-## TODO: Containerize
 ## TODO: recurring tasks / ever present tasks
 ## TODO: backup function for database (download/upload in interface would be nice)
 ## TODO: Persistent database between docker updates
@@ -12,21 +9,23 @@
 ## ---- ##
 
 # Import necessary libraries
-from flask import Flask, request, jsonify, render_template, redirect, flash, get_flashed_messages
+from flask import Flask, request, jsonify, render_template, redirect, flash, url_for, send_file
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import joinedload, aliased
 from sqlalchemy.sql.expression import func
+from sqlalchemy import create_engine
 from itertools import groupby
 from collections import defaultdict
+from werkzeug.utils import secure_filename
+from werkzeug.exceptions import BadRequest
+from datetime import datetime
 import os
 import secrets
+import sqlite3
 
 # Initialize Flask app
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
-
-
-
 
 ## -------- ##
 ## DATABASE ##
@@ -284,3 +283,75 @@ def update_category_order():
 @app.route('/env')
 def show_env():
     return dict(os.environ)
+
+
+
+
+## Settings ##
+
+@app.route('/settings')
+def settings():
+    return render_template('settings.html')
+
+@app.route('/backup', methods=['GET'])
+def backup():
+    # find the path to sqlite database
+    if db_path.startswith("sqlite:///"):
+        actual_db_path = db_path[len("sqlite:///"):]
+    else:
+        actual_db_path = db_path
+
+    # Get the current date and time, and format it
+    current_datetime = datetime.now().strftime('%Y%m%d_%H%M%S')
+    
+    # Define a backup file name with the current date and time appended
+    backup_file = f"backup_{current_datetime}.db"
+
+    # Create a backup
+    source = sqlite3.connect(actual_db_path)
+    backup = sqlite3.connect(backup_file)
+    with backup:
+        source.backup(backup)
+
+    return send_file(backup_file, as_attachment=True, download_name=backup_file)
+
+@app.route('/restore', methods=['POST'])
+def restore():
+    # find the path to sqlite database
+    if db_path.startswith("sqlite:///"):
+        actual_db_path = db_path[len("sqlite:///"):]
+    else:
+        actual_db_path = db_path
+
+    # Check if a file was posted
+    if 'dbfile' not in request.files:
+        raise BadRequest("No file part")
+
+    file = request.files['dbfile']
+
+    # If the user does not select a file, the browser can submit an empty file without a filename.
+    if file.filename == '':
+        raise BadRequest("No selected file")
+
+    # Check for proper file extension
+    if not file.filename.endswith('.db'):
+        raise BadRequest("Invalid file type. Please upload a .db file.")
+
+    # Save the uploaded file
+    filename = secure_filename(file.filename)
+    backup_path = os.path.join("/tmp", filename)  # save to temporary location
+    file.save(backup_path)
+
+    try:
+        # Restore the backup
+        current_db = sqlite3.connect(actual_db_path)
+        backup_db = sqlite3.connect(backup_path)
+        with current_db:
+            backup_db.backup(current_db)
+    
+        flash('Database restored from ' + filename, 'success')
+    except Exception as e:
+        # Handle any error that arises during file operations
+        flash(f"An error occurred while restoring the database: {e}", 'danger')
+
+    return redirect('/settings')
