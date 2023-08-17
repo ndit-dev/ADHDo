@@ -231,6 +231,28 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 					// Append the new category to the categories container
 					categoriesContainer.insertAdjacentHTML('beforeend', newCategoryHtml);
+
+					// Get the new tasks container inside the newly added category
+					var newTaskList = document.getElementById(taskListId);
+				
+					// Reinitialize the Sortable instance on the new tasks container
+					Sortable.create(newTaskList, {
+						onUpdate: function (evt) {
+							var newOrder = {};
+							Array.from(evt.from.children).forEach((task, index) => {
+								var taskId = task.getAttribute('data-task-id');
+								newOrder[taskId] = index;
+							});
+							
+							fetch('/update_task_order', {
+								method: 'POST',
+								headers: {
+									'Content-Type': 'application/json',
+								},
+								body: JSON.stringify({ order: newOrder })
+							});
+						},
+					});
 				}
 			}
 		});

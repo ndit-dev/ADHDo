@@ -149,12 +149,6 @@ def add_task():
 
     return jsonify(status='success', task=task_dict, category=category_dict, category_id=category.id)
 
-# View all tasks
-@app.route('/get_tasks', methods=['GET'])
-def get_tasks():
-    tasks = db.session.query(Task).all()
-    return render_template('tasks.html', tasks=tasks)
-
 # View tasks from a specific category
 @app.route('/get_tasks/<category_name>', methods=['GET'])
 def get_tasks_by_category(category_name):
@@ -234,16 +228,6 @@ def toggle_category(category_id):
     db.session.commit()
     return jsonify(success=True)
 
-@app.route('/manage_categories')
-def manage_categories():
-    categories = Category.query \
-                 .outerjoin(Task) \
-                 .with_entities(Category, func.count(Task.id).label('tasks_count'), Category.sort_order) \
-                 .group_by(Category.id) \
-                 .order_by(Category.sort_order) \
-                 .all()
-    return render_template('manage_categories.html', categories=categories)
-
 @app.route('/edit_category/<int:category_id>', methods=['POST'])
 def edit_category(category_id):
     category = Category.query.get_or_404(category_id)
@@ -291,7 +275,17 @@ def show_env():
 
 @app.route('/settings')
 def settings():
-    return render_template('settings.html')
+    # get all tasks in the database
+    tasks = db.session.query(Task).all()
+
+    # get all categories in the database
+    categories = Category.query \
+                .outerjoin(Task) \
+                .with_entities(Category, func.count(Task.id).label('tasks_count'), Category.sort_order) \
+                .group_by(Category.id) \
+                .order_by(Category.sort_order) \
+                .all()
+    return render_template('settings.html', categories=categories, tasks=tasks)
 
 @app.route('/backup', methods=['GET'])
 def backup():
