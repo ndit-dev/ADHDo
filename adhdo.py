@@ -1,7 +1,9 @@
+## --TODO LIST-------------------------------------------------------------
+## TODO: reset tasks checkmarks during the night
 ## TODO: recurring tasks / ever present tasks
-## TODO: backup function for database (download/upload in interface would be nice)
-## TODO: Persistent database between docker updates
-
+## TODO: Stylyze the pages with CSS
+## TODO: Make sure the UX/IX works good on phones and tablets
+## ------------------------------------------------------------------------
 
 
 ## ---- ##
