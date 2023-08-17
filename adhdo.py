@@ -37,7 +37,7 @@ db_path = 'sqlite:///adhdo.db'
 
 # Check if running in Docker based on environment variable
 if os.environ.get('IN_DOCKER'):
-    db_path = 'sqlite:////adhdo_app/adhdo.db'
+    db_path = 'sqlite:////adhdo_app/data/adhdo.db'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
