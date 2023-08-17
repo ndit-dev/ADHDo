@@ -61,7 +61,9 @@ window.onload = function() {
 		
 		// Play the sound
 		if (this.checked) {
-			document.getElementById('completeSound').play();
+			var sound = document.getElementById('completeSound');
+			sound.currentTime = 0; // Reset audio to the beginning
+			sound.play();
 		}
 
 		// Get the task ID from the data-task-id attribute
