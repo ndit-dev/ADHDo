@@ -1,9 +1,9 @@
-./data/*
-./venv/
-./Include/
-./Lib/
+/data/*
+/venv/
+/Include/
+/Lib/
 pyvenv.cfg
 __pycache__/
 *.pyc
-./.vscode/
-./Scripts/
+/.vscode/
+/Scripts/
