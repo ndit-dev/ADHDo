@@ -30,5 +30,5 @@ docker-compose build
 ```
 to start or restart the container with the latest changes use `docker-compose up` or `docker-compose up --build` to both build and start it in one step
 
-## dont forget
+### dont forget
 to disable debug mode and develeopment mode before setting it production
