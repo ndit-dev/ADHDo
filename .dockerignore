@@ -3,3 +3,7 @@ __pycache__
 *.pyo
 *.egg-info
 *.log
+Include/
+Lib/
+Scripts/
+pyvenv.cfg
