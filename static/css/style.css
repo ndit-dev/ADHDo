@@ -1,0 +1,48 @@
+@import "chota.css";
+
+/*	Dark Mode	*/
+body.dark {
+	--bg-color: #000;
+	--bg-secondary-color: #131316;
+	--font-color: #f5f5f5;
+	--color-grey: #ccc;
+	--color-darkGrey: #777;
+}
+
+body.dark input {
+	background-color: var(--bg-secondary-color); /* dark gray background */
+	color: #ffffff; /* white text */
+	border: 1px solid #555555; /* lighter gray border */
+}
+
+/* 	ADD TASK BUTTON	*/
+.add-task-button-dropdown {
+	padding-top: 20px;
+}
+.add-task-button {
+	padding: 10px;
+}
+
+/*	TASKS	*/
+.toggle-arrow {
+	cursor: pointer;
+}
+.tasks {
+	display: block; /* Set this to 'block' if you want tasks to be visible by default */
+	cursor: grab; /* shows that it is drag and droppable if users using a mouse*/
+	text-indent: 20px;
+}
+.edit-task-icon {
+	padding-left: 20px;
+	cursor: pointer;
+}
+.delete-task-icon {
+	cursor: pointer;
+}
+
+/* 	CATEGORIES	*/
+.category-title {
+	cursor: grab; /* shows that it is drag and droppable if users using a mouse*/
+	text-indent: 10px;
+	padding-top: 20px;
+  }

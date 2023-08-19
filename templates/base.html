@@ -7,38 +7,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='/css/style.css') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
-  <script>
-	function toggleMenu() {
-	  var menu = document.querySelector('.hamburger-menu');
-	  menu.classList.toggle('show-menu');
-	}
-  </script>
-
   {% block head %}{% endblock %}
 
 </head>
-<body>
-  <div class="hamburger-menu" onclick="toggleMenu()">
-	<div class="bars">
-		<div class="bar"></div>
-		<div class="bar"></div>
-		<div class="bar"></div>
-	  </div>
-    <div class="nav-menu">
-      <a href="/">Home</a>
-      <a href="/settings">Settings</a>
-      <a href="/about">About</a>
-    </div>
-  </div>
+<body id="top" class="dark">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="brand" href="#">📋 ADHDo</a>
+        <div class="tabs">
+          <a href="/">Tasks</a>
+          <a href="settings">settings</a>
+          <a href="about">about</a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <a href="javascript:void(0)" onclick="switchMode(this)">🌙</a>
+      </div>
+    </nav>
 
-  {% block content %}{% endblock %}
+    {% block content %}{% endblock %}
+  </div>
 </body>
 </html>

@@ -1,3 +1,13 @@
+
+//
+// Handle darkmode
+//
+function switchMode(el) {
+	const bodyClass = document.body.classList;
+	bodyClass.contains('dark')
+	  ? (el.innerHTML = '☀️', bodyClass.remove('dark'))
+	  : (el.innerHTML = '🌙', bodyClass.add('dark')); 
+}
 //
 // Listener to update the order of categories and tasks after drag and drop action
 //
@@ -61,9 +71,7 @@ window.onload = function() {
 		
 		// Play the sound
 		if (this.checked) {
-			var sound = document.getElementById('completeSound');
-			sound.currentTime = 0; // Reset audio to the beginning
-			sound.play();
+			document.getElementById('completeSound').play();
 		}
 
 		// Get the task ID from the data-task-id attribute
@@ -98,10 +106,10 @@ function toggleTasks(element, category_id) {
 	// Toggle the display of the tasks
 	if (tasks.style.display === 'none' || tasks.style.display === '') {
 		tasks.style.display = 'block';
-		arrow.innerHTML = '⤴'; // Change arrow direction
+		arrow.innerHTML = '<img src="https://icongr.am/jam/chevron-down.svg?size=20&color=777777">'; // Change arrow direction
 	} else {
 		tasks.style.display = 'none';
-		arrow.innerHTML = '⤵'; // Change arrow direction
+		arrow.innerHTML = '<img src="https://icongr.am/jam/chevron-right.svg?size=20&color=777777">'; // Change arrow direction
 	}
 
 	// Send an AJAX request to update the category's visibility in the database
@@ -169,10 +177,10 @@ function renderCategory(category, taskHtml) {
 		<div class="category" data-category-id="${category.id}">
 			<div class="category-title">
 				<h3>
-					${category.name}
 					<span class="toggle-arrow" onclick="toggleTasks(this, ${category.id})">
-						${category.is_visible ? '⤴' : '⤵'}
+						<img src="https://icongr.am/jam/chevron-${category.is_visible ? 'down' : 'right'}.svg?size=20&color=777777">
 					</span>
+					${category.name}
 				</h3>
 			</div>
 			<div class="tasks" id="tasks-for-category-${category.id}" style="${isVisible};">
@@ -181,22 +189,11 @@ function renderCategory(category, taskHtml) {
 		</div>`;
 }
 
-window.addEventListener('DOMContentLoaded', (event) => {
-	var showAddTaskButton = document.getElementById('show-add-task');
-	var addTaskForm = document.getElementById('add-task-form');
-	var taskTitleInput = document.getElementById('task-title');
+document.addEventListener('DOMContentLoaded', function() {
+    var addTaskForm = document.getElementById('add-task-form-inner');
 
-	showAddTaskButton.addEventListener('click', function() {
-		if(addTaskForm.style.display === 'none' || addTaskForm.style.display === '') {
-			addTaskForm.style.display = 'block';
-			taskTitleInput.focus(); // Focus the task title input
-		} else {
-			addTaskForm.style.display = 'none'; // Hide the form
-		}
-	});
-		
-	document.getElementById('add-task-form-inner').addEventListener('submit', function(e) {
-		e.preventDefault(); // Prevent normal form submission
+    addTaskForm.addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent normal form submission
 
 		// Construct the form data
 		var formData = new FormData(this);
@@ -206,12 +203,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
 			method: 'POST',
 			body: formData
 		})
-		.then(response => response.json())
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('Network response was not ok'); 
+			}
+			return response.json();
+		})
 		.then(data => {
 			if (data.status === 'success') {
-				addTaskForm.style.display = 'none'; // Hide the form
-				showAddTaskButton.style.display = 'block'; // Show the plus sign button
-
 				// Reset the form
 				this.reset();
 
@@ -233,30 +232,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 					// Append the new category to the categories container
 					categoriesContainer.insertAdjacentHTML('beforeend', newCategoryHtml);
-
-					// Get the new tasks container inside the newly added category
-					var newTaskList = document.getElementById(taskListId);
-				
-					// Reinitialize the Sortable instance on the new tasks container
-					Sortable.create(newTaskList, {
-						onUpdate: function (evt) {
-							var newOrder = {};
-							Array.from(evt.from.children).forEach((task, index) => {
-								var taskId = task.getAttribute('data-task-id');
-								newOrder[taskId] = index;
-							});
-							
-							fetch('/update_task_order', {
-								method: 'POST',
-								headers: {
-									'Content-Type': 'application/json',
-								},
-								body: JSON.stringify({ order: newOrder })
-							});
-						},
-					});
 				}
 			}
+		})
+		.catch(error => {
+			console.log('There was a problem with the fetch operation:', error.message);
 		});
 	});
 });

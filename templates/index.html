@@ -8,20 +8,32 @@
 	<!-- load a sound to be used when completing a task -->
 	<audio id="completeSound" src="{{ url_for('static', filename='complete.wav') }}"></audio>
 
-
+	<!-- preload some images-->
+	<link rel="preload" href="https://icongr.am/jam/chevron-down.svg?size=20&color=777777" as="image">
+	<link rel="preload" href="https://icongr.am/jam/chevron-right.svg?size=20&color=777777" as="image">
 {% endblock %}
 
 {% block content %}
-	<h1>📋 ADHDo</h1>
-	<button id="show-add-task" class="btn"><i class="fas fa-plus"></i></button>
-	<div id="add-task-form" style="display: none;">
-		<form id="add-task-form-inner">
-			<input type="text" name="task-title" placeholder="Task title" id="task-title" required>
-			<input type="text" name="category" placeholder="Category" id="category" required>
-			<button type="submit">Add Task</button>
-		</form>
-	</div>
-
+	<details class="dropdown add-task-button-dropdown">
+		<summary class="button add-task-button primary" id="focus-task-title">
+			<img src="https://icongr.am/jam/plus.svg?size=20&color=ffffff">
+		</summary>
+		<div class="card row">
+			<header>
+				<h4>Add Task</h4>
+			</header>
+			<div id="add-task-form" style="width: 300px;">
+				<form id="add-task-form-inner">
+					<input class="col-5 dark" style="display:inline-block;" placeholder="Task Title" id="task-title" name="task-title" required>
+					<input class="col-5 dark" style="display:inline-block;" placeholder="Category" id="category" name="category" required>
+					<footer class="is-right">
+						<button type="submit">Add</button>
+					</footer>
+				</form>
+			</div>
+		</div>
+	</details>
+	
 	{% with messages = get_flashed_messages(with_categories=true) %}
 	{% if messages %}
 		{% for category, message in messages %}
@@ -36,10 +48,10 @@
 		<div class="category" data-category-id="{{ category_obj.id }}">
 			<div class="category-title">
 				<h3>
-					{{ category_obj.name }}
 					<span class="toggle-arrow" onclick="toggleTasks(this, {{ category_obj.id }})">
-						{% if category_obj.is_visible %}⤴{% else %}⤵{% endif %}
+						<img src="https://icongr.am/jam/chevron-{% if category_obj.is_visible %}down{% else %}right{% endif %}.svg?size=20&color=777777">
 					</span>
+					{{ category_obj.name }}
 				</h3>
 			</div>
 			<div class="tasks" id="tasks-for-category-{{ category_obj.id }}" style="
@@ -52,7 +64,8 @@
 				<div class="task" data-task-id="{{ task.id }}">
 					<input type="checkbox" class="task-complete-checkbox" name="completed" value="true" data-task-id="{{ task.id }}" {% if task.completed %}checked{% endif %}>
 					<strong>{{ task.title }}</strong>
-					<i class="fas fa-times delete-task-icon" data-task-id="{{ task.id }}"></i>
+					<img src="https://icongr.am/jam/pencil-f.svg?size=18&color=777777" class="edit-task-icon">
+					<img src="https://icongr.am/jam/trash-f.svg?size=18&color=777777" class="delete-task-icon" data-task-id="{{ task.id }}">
 				</div>
 				{% endfor %}
 			</div>
