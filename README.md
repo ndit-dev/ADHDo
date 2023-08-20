@@ -24,6 +24,15 @@ docker build -t adhdo:latest .
 docker run -p 80:80 adhdo:latest
 ```
 
+## Timezone Configuration
+If deploying directly using the Dockerfile, the container will default to UTC unless specified otherwise. However, you can easily set the container's timezone by passing the `TZ` environment variable:
+
+```bash
+docker run -e TZ=Europe/Stockholm your-image-name
+```
+
+Replace `Europe/Stockholm` with any valid timezone string if needed.
+
 ## Notes to self...
 while developing dont for get to update the requirements.txt by running `pip freeze > requirements.txt` to get the required dependencies from the virtual environment if changes have been made to that.
 if dockerfile or requirements.txt has changed, or the container is not built on the local machine, run

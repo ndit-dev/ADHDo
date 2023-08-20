@@ -24,32 +24,18 @@
 		<input type="file" name="dbfile">
 		<input type="submit" value="Upload and Restore Backup">
 	</form>
-	<h2>Manage Categories</h2>
-	<ul>
-		{% for category_tuple in categories %}
-		<li>
-			<form action="/edit_category/{{ category_tuple[0].id }}" method="post">
-				<input type="text" name="name" value="{{ category_tuple[0].name }}">
-				<button type="submit">Edit</button>
-			</form>
-			<form action="/delete_category/{{ category_tuple[0].id }}" method="post" style="display:inline;">
-				<button type="submit" {% if category_tuple[1] > 0 %} disabled {% endif %}>Delete</button>
-				({{ category_tuple[1] }} active tasks) 
-			</form>
-			{% if category_tuple[0].is_visible %} (Visible) {% else %} (Hidden) {% endif %}
-			<span>Sort Order: {{ category_tuple[2] }}</span>
-		</li>
-		{% endfor %}
-    </ul>
-	<h2>List of all tasks</h2>
-	<ul>
-		{% for task in tasks %}
-		<li>
-			{{ task.title }} (Category: {{ task.category.name if task.category else 'None' }})
-			<form action="/delete_task/{{ task.id }}" method="post" style="display:inline;">
-				<button type="submit">Delete</button>
-			</form>
-		</li>
-		{% endfor %}
-	</ul>
+	<h2>Reset Checkmarks</h2>
+	<div class="row">
+		<div>
+			<label for="resetTime" id="resetTimeLabel">
+				Reset Time <span id="serverTimezone">server timezone: {{ server_timezone }}</span>
+			</label>
+			<input type="time" id="resetTime">
+		</div>
+		<div id="containerTimezoneDisplay"></div>
+	</div>
+	
+	<button id="updateResetTimeBtn">Update Reset Time</button>
+	
+	<script src="/static/js/scripts/settings.js"></script>
 {% endblock %}

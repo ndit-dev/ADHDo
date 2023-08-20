@@ -9,7 +9,8 @@ body.dark {
 	--color-darkGrey: #777;
 }
 
-body.dark input {
+body.dark input,
+body.dark select {
 	background-color: var(--bg-secondary-color); /* dark gray background */
 	color: #ffffff; /* white text */
 	border: 1px solid #555555; /* lighter gray border */
@@ -46,3 +47,8 @@ body.dark input {
 	text-indent: 10px;
 	padding-top: 20px;
   }
+
+/*	SETTINGS */
+#serverTimezone {
+	font-style: italic;
+}

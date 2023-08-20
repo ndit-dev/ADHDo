@@ -1,13 +1,62 @@
+//
+// reset checkmarks at resetTime
+//
+document.addEventListener("DOMContentLoaded", function() {
+    checkResetTime();
+    setInterval(checkResetTime, 300000); // 5 minutes
+});
 
-//
-// Handle darkmode
-//
-function switchMode(el) {
-	const bodyClass = document.body.classList;
-	bodyClass.contains('dark')
-	  ? (el.innerHTML = '☀️', bodyClass.remove('dark'))
-	  : (el.innerHTML = '🌙', bodyClass.add('dark')); 
+function checkResetTime() {
+    fetch('/get-settings')
+        .then(response => response.json())
+        .then(data => {
+            const currentTime = new Date();
+
+            // Construct the scheduled reset time using today's date combined with the reset hour and minute
+            const scheduledResetTime = new Date(
+                currentTime.getFullYear(),
+                currentTime.getMonth(),
+                currentTime.getDate(),
+                data.resetTime.hour,
+                data.resetTime.minute
+            );
+
+            const timeOfLastReset = new Date(data.lastReset);
+
+			// console.log('now:' + currentTime.toLocaleString()); // Debugging message in local time
+			// console.log('scheduledResetTime:' + scheduledResetTime.toLocaleString()); // Debugging message in local time
+			// console.log('lastReset:' + timeOfLastReset.toLocaleString()); // Debugging message in local time			
+
+            // Check if the scheduledResetTime has passed since the last reset
+            if (currentTime > scheduledResetTime && timeOfLastReset < scheduledResetTime) {
+                fetch('/update-last-reset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(() => {
+                    // Reset the checkmarks
+                    return fetch('/reset-checkmarks', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                });
+            }
+        });
 }
+
+
 //
 // Listener to update the order of categories and tasks after drag and drop action
 //
@@ -64,33 +113,29 @@ window.onload = function() {
 	var checkboxes = document.querySelectorAll('.task-complete-checkbox');
 	checkboxes.forEach(function(checkbox) {
 		checkbox.addEventListener('change', function(event) {
-		console.log('Checkbox change detected'); // Debugging message
 
-		// Prevent the default form submission
-		event.preventDefault();
-		
-		// Play the sound
-		if (this.checked) {
-			document.getElementById('completeSound').play();
-		}
-
-		// Get the task ID from the data-task-id attribute
-		var taskId = this.dataset.taskId;
-
-		// Send an AJAX request to update the task on the server
-		var xhr = new XMLHttpRequest();
-		xhr.open('POST', '/complete_task/' + taskId); // Replace with your URL
-		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-		xhr.send('completed=' + (this.checked ? 'true' : 'false'));
-		
-		// Handle the response from the server
-		xhr.onreadystatechange = function() {
-			if (xhr.readyState == 4 && xhr.status == 200) {
-			console.log('Server response received:', xhr.responseText); // Debugging message
+			// Prevent the default form submission
+			event.preventDefault();
+			
+			// Play the sound
+			if (this.checked) {
+				document.getElementById('completeSound').play();
 			}
-		};
 
-		console.log('AJAX request sent'); // Debugging message
+			// Get the task ID from the data-task-id attribute
+			var taskId = this.dataset.taskId;
+
+			// Send an AJAX request to update the task on the server
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', '/complete_task/' + taskId); // Replace with your URL
+			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+			xhr.send('completed=' + (this.checked ? 'true' : 'false'));
+			
+			// Handle the response from the server
+			xhr.onreadystatechange = function() {
+				if (xhr.readyState == 4 && xhr.status == 200) {
+				}
+			};
 		});
 	});
 };
