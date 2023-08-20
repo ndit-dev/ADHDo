@@ -1,4 +1,6 @@
 ## --TODO LIST-------------------------------------------------------------
+## TODO: remove reset checkmar message, and make sure extra update is not needed
+##
 ## TODO: reset tasks checkmarks during the night
 ## TODO: recurring tasks / ever present tasks
 ## TODO: Stylyze the pages with CSS
@@ -11,19 +13,18 @@
 ## ---- ##
 
 # Import necessary libraries
-from flask import Flask, request, jsonify, render_template, redirect, flash, url_for, send_file
+from flask import Flask, request, jsonify, render_template, redirect, flash, send_file
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import joinedload, aliased
 from sqlalchemy.sql.expression import func
-from sqlalchemy import create_engine
-from itertools import groupby
 from collections import defaultdict
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import BadRequest
-from datetime import datetime
+from datetime import datetime, time
 import os
 import secrets
 import sqlite3
+import time as time_module
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -44,7 +45,6 @@ if os.environ.get('IN_DOCKER'):
 app.config['SQLALCHEMY_DATABASE_URI'] = db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-
 
 # Category model for storing task categories
 class Category(db.Model):
@@ -77,10 +77,30 @@ class Task(db.Model):
             'sort_order': self.sort_order,
             'category_id': self.category.id,
         }
+    
+# Settings model for storing application settings
+class Settings(db.Model):
+    id = db.Column(db.Integer, primary_key=True)  # Primary key, even though we will only have one row
+    lastReset = db.Column(db.DateTime, default=datetime.now) # Timestamp of the last time the app was opened
+    resetTime = db.Column(db.Time, default=time(3, 0), nullable=True)  # Time of the day for daily reset, default to 03:00
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'lastReset': self.lastReset,
+            'resetTime': self.resetTime
+        }
+
 
 # create the database
 with app.app_context():
-    db.create_all()
+    db.create_all()    
+
+    # Check if there's no row in Settings
+    if not Settings.query.first():
+        default_settings = Settings()  # This will use the default values defined in the model
+        db.session.add(default_settings)
+        db.session.commit()
 
 ## ------ ##
 ## ROUTES ##
@@ -213,7 +233,17 @@ def update_task_order():
 
     return jsonify(status='success')
 
-
+@app.route('/reset-checkmarks', methods=['POST'])
+def reset_checkmarks():
+    try:
+        tasks = Task.query.all()
+        for task in tasks:
+            task.completed = False
+        db.session.commit()
+        return jsonify(success=True, message="All checkmarks have been reset.")
+    except Exception as e:
+        return jsonify(success=False, message=str(e))
+    
 
 
 ## CATEGORIES ##
@@ -273,7 +303,7 @@ def show_env():
 
 
 
-## Settings and misc ##
+## SETTINGS AND MISC ##
 
 @app.route('/about')
 def about():
@@ -284,6 +314,9 @@ def settings():
     # get all tasks in the database
     tasks = db.session.query(Task).all()
 
+    # get the server timezone
+    server_timezone = time_module.tzname[0]
+
     # get all categories in the database
     categories = Category.query \
                 .outerjoin(Task) \
@@ -291,7 +324,7 @@ def settings():
                 .group_by(Category.id) \
                 .order_by(Category.sort_order) \
                 .all()
-    return render_template('settings.html', categories=categories, tasks=tasks)
+    return render_template('settings.html', categories=categories, tasks=tasks, server_timezone=server_timezone)
 
 @app.route('/backup', methods=['GET'])
 def backup():
@@ -337,7 +370,7 @@ def restore():
     if not file.filename.endswith('.db'):
         raise BadRequest("Invalid file type. Please upload a .db file.")
 
-    # Save the uploaded file
+    # Save the uploaded file/update-last-reset
     filename = secure_filename(file.filename)
     backup_path = os.path.join("/tmp", filename)  # save to temporary location
     file.save(backup_path)
@@ -355,3 +388,52 @@ def restore():
         flash(f"An error occurred while restoring the database: {e}", 'danger')
 
     return redirect('/settings')
+
+@app.route('/get-settings', methods=['GET'])
+def get_settings():
+    settings = Settings.query.first()
+    
+    if not settings:
+        return jsonify({'error': 'No settings found'}), 404
+
+    return jsonify({
+        'lastReset': settings.lastReset.strftime('%Y-%m-%dT%H:%M:%S'),  # Convert to string format
+        'resetTime': {
+            'hour': settings.resetTime.hour,
+            'minute': settings.resetTime.minute
+            
+        }
+    })
+
+@app.route('/update-last-reset', methods=['POST'])
+def update_last_opened():
+    settings = Settings.query.first()
+    
+    if not settings:
+        # Create a new entry if not found
+        settings = Settings()
+        db.session.add(settings)
+    
+    # Update the lastReset field with current time
+    settings.lastReset = datetime.now()
+    
+    # Save changes
+    db.session.commit()
+
+    return jsonify({'message': 'lastReset updated successfully'}), 200
+
+
+@app.route('/update-reset-time', methods=['POST'])
+def update_reset_time():
+    data = request.get_json()
+    resetTime = data.get("resetTime")
+
+    hours, minutes = map(int, resetTime.split(":"))
+    resetTimeObj = time(hour=hours, minute=minutes)
+
+    # Store the resetTimeObj in the database
+    settings = Settings.query.first()
+    settings.resetTime = resetTimeObj
+    db.session.commit()
+
+    return jsonify(status='success')
