@@ -20,9 +20,6 @@ body.dark select {
 .add-task-button-dropdown {
 	padding-top: 20px;
 }
-.add-task-button {
-	padding: 10px;
-}
 
 /*	TASKS	*/
 .toggle-arrow {
@@ -49,6 +46,14 @@ body.dark select {
   }
 
 /*	SETTINGS */
-#serverTimezone {
-	font-style: italic;
+.reset-time-wrapper {
+    position: relative;
+}
+
+.timezone {
+	margin-bottom: 0;
+	margin-left: 10px;
+    font-style: italic;
+	font-size: 90%;
+    color: grey;
 }

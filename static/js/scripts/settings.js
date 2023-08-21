@@ -23,3 +23,14 @@ document.getElementById('updateResetTimeBtn').addEventListener('click', function
         }
     });
 });
+
+// Fetch the reset time value and set it to the input
+fetch('/get-settings')
+    .then(response => response.json())
+    .then(data => {
+        const resetTimeInput = document.getElementById('resetTime');
+        let hourStr = String(data.resetTime.hour).padStart(2, '0');
+        let minuteStr = String(data.resetTime.minute).padStart(2, '0');
+        
+        resetTimeInput.value = `${hourStr}:${minuteStr}`;
+    });

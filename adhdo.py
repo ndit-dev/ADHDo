@@ -13,7 +13,7 @@
 ## ---- ##
 
 # Import necessary libraries
-from flask import Flask, request, jsonify, render_template, redirect, flash, send_file
+from flask import Flask, request, jsonify, render_template, redirect, flash, send_file, g
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import joinedload, aliased
 from sqlalchemy.sql.expression import func
@@ -346,7 +346,20 @@ def backup():
     with backup:
         source.backup(backup)
 
+    g.backup_file_to_remove = backup_file
+    print(f"sent: {backup_file}")
     return send_file(backup_file, as_attachment=True, download_name=backup_file)
+
+@app.after_request  # delete backup file after download
+def cleanup(response):
+    backup_file = getattr(g, 'backup_file_to_remove', None)
+    if backup_file:
+        try:
+            print(f"deleted backup file from {backup_file}")
+            os.remove(backup_file)
+        except Exception as e:
+            print(f"Error deleting backup file: {e}")
+    return response
 
 @app.route('/restore', methods=['POST'])
 def restore():

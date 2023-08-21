@@ -285,3 +285,43 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	});
 });
+
+//
+//	ADD TASK BOX
+//
+
+// autocopmletion for categories
+$(document).ready(function() {
+	// Fetch categories from backend
+	$.get("/categories", function(data) {
+		// Once data is received, initialize the autocomplete
+		$("#category").autocomplete({
+			source: data
+		});
+	});
+});
+
+// Hiding the box on submit or when clicking outside the box
+document.addEventListener('DOMContentLoaded', function() {
+    // Hide dropdown when the Add button is pressed
+    document.querySelector("#add-task-form-inner button[type='submit']").addEventListener('click', function(e) {
+		console.log("Submit button clicked");
+		let form = e.target.closest('form');
+		if (form.checkValidity()) {
+			document.querySelector("details.dropdown").removeAttribute("open");
+		}
+	});
+
+	// Prevent hiding the dropdown when clicked inside the dropdown
+	document.querySelector("details.dropdown").addEventListener('click', function(event) {
+		event.stopPropagation();
+	});
+
+	// Hide dropdown when clicked outside
+	document.addEventListener('click', function(event) {
+		let detailsElement = document.querySelector("details.dropdown");
+		if (!detailsElement.contains(event.target) && detailsElement.hasAttribute("open")) {
+			detailsElement.removeAttribute("open");
+		}
+	});
+});

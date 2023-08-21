@@ -15,21 +15,21 @@
 
 {% block content %}
 	<details class="dropdown add-task-button-dropdown">
-		<summary class="button add-task-button primary" id="focus-task-title">
+		<summary class="button icon-only primary" id="focus-task-title">
 			<img src="https://icongr.am/jam/plus.svg?size=20&color=ffffff">
 		</summary>
 		<div class="card row">
 			<header>
 				<h4>Add Task</h4>
 			</header>
-			<div id="add-task-form" style="width: 300px;">
-				<form id="add-task-form-inner">
-					<input class="col-5 dark" style="display:inline-block;" placeholder="Task Title" id="task-title" name="task-title" required>
-					<input class="col-5 dark" style="display:inline-block;" placeholder="Category" id="category" name="category" required>
-					<footer class="is-right">
-						<button type="submit">Add</button>
-					</footer>
-				</form>
+			<div id="add-task-form" style="width: 500px;">
+				<p class="grouped">
+					<form id="add-task-form-inner">
+						<input class="col-4" style="display:inline-block;" placeholder="Task Title" id="task-title" name="task-title" required>
+						<input class="col-4" style="display:inline-block;" placeholder="Category" id="category" name="category" required>
+						<button type="submit" class="button primary">Add</button>
+					</form>
+				</p>
 			</div>
 		</div>
 	</details>
