@@ -2,6 +2,8 @@
 
 {% block title %}Home{% endblock %}
 
+{% block nav_home %}active{% endblock %}
+
 {% block head %}
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 
@@ -9,8 +11,8 @@
 	<audio id="completeSound" src="{{ url_for('static', filename='complete.wav') }}"></audio>
 
 	<!-- preload some images-->
-	<link rel="preload" href="https://icongr.am/jam/chevron-down.svg?size=20&color=777777" as="image">
-	<link rel="preload" href="https://icongr.am/jam/chevron-right.svg?size=20&color=777777" as="image">
+	<link rel="prefetch" href="https://icongr.am/jam/chevron-down.svg?size=20&color=777777" as="image">
+	<link rel="prefetch" href="https://icongr.am/jam/chevron-right.svg?size=20&color=777777" as="image">
 {% endblock %}
 
 {% block content %}
@@ -18,18 +20,18 @@
 		<summary class="button icon-only primary" id="focus-task-title">
 			<img src="https://icongr.am/jam/plus.svg?size=20&color=ffffff">
 		</summary>
-		<div class="card row">
+		<div class="row add-task-dropdown-card">
 			<header>
 				<h4>Add Task</h4>
 			</header>
 			<div id="add-task-form" style="width: 500px;">
-				<p class="grouped">
 					<form id="add-task-form-inner">
-						<input class="col-4" style="display:inline-block;" placeholder="Task Title" id="task-title" name="task-title" required>
-						<input class="col-4" style="display:inline-block;" placeholder="Category" id="category" name="category" required>
-						<button type="submit" class="button primary">Add</button>
+						<p class="grouped">
+							<input type="text" placeholder="Task Title" id="task-title" name="task-title" required>
+							<input type="text" placeholder="Category" id="category" name="category" required>
+						</p>
+							<button type="submit" class="button primary">Add</button>
 					</form>
-				</p>
 			</div>
 		</div>
 	</details>
@@ -63,9 +65,22 @@
 				{% for task in tasks %}
 				<div class="task" data-task-id="{{ task.id }}">
 					<input type="checkbox" class="task-complete-checkbox" name="completed" value="true" data-task-id="{{ task.id }}" {% if task.completed %}checked{% endif %}>
-					<strong>{{ task.title }}</strong>
-					<img src="https://icongr.am/jam/pencil-f.svg?size=18&color=777777" class="edit-task-icon">
+					<strong id="task-title-{{ task.id }}">{{ task.title }}</strong>
+					<img src="https://icongr.am/jam/pencil-f.svg?size=18&color=777777" class="edit-task-icon" onclick="toggleEditTask({{ task.id }})">
 					<img src="https://icongr.am/jam/trash-f.svg?size=18&color=777777" class="delete-task-icon" data-task-id="{{ task.id }}">
+
+					<!-- Hidden edit form -->
+					<div id="edit-task-form-{{ task.id }}" class="edit-task-form" style="display: none;">
+						<fieldset>
+							<legend>Edit Task</legend>
+							<form class="edit-task-form-inner" action="{{ url_for('edit_task', task_id=task.id) }}" method="post">
+								<p class="grouped">
+									<input type="text" name="title" placeholder="Task Title" value="{{ task.title }}" data-task-id="{{ task.id }}" required>
+									<button type="submit" class="button primary">Update</button>
+								</p>
+							</form>
+						</fieldset>
+					</div>
 				</div>
 				{% endfor %}
 			</div>

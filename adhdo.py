@@ -36,11 +36,7 @@ app.secret_key = secrets.token_hex(16)
 
 # Configure SQLAlchemy with SQLite database
 # Default database path
-db_path = 'sqlite:///adhdo.db'
-
-# Check if running in Docker based on environment variable
-if os.environ.get('IN_DOCKER'):
-    db_path = 'sqlite:////adhdo_app/data/adhdo.db'
+db_path = 'sqlite:////adhdo_app/data/adhdo.db'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -220,6 +216,13 @@ def delete_task(task_id):
     # Send JSON response to the client
     return jsonify(status='success' if task else 'error', category_deleted=category_deleted)
 
+@app.route('/edit_task/<int:task_id>', methods=['POST'])
+def edit_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    task.title = request.form.get('title')
+    db.session.commit()
+    return jsonify(status='success', task={'id': task_id, 'title': task.title})
+
 @app.route('/update_task_order', methods=['POST'])
 def update_task_order():
     # Get the new ordering from the request
@@ -329,10 +332,8 @@ def settings():
 @app.route('/backup', methods=['GET'])
 def backup():
     # find the path to sqlite database
-    if db_path.startswith("sqlite:///"):
-        actual_db_path = db_path[len("sqlite:///"):]
-    else:
-        actual_db_path = db_path
+    BASE_DIR = '/adhdo_app/data/'  # Define this at the top of your script or as a configuration option.
+    actual_db_path = os.path.join(BASE_DIR, 'adhdo.db')
 
     # Get the current date and time, and format it
     current_datetime = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -364,10 +365,8 @@ def cleanup(response):
 @app.route('/restore', methods=['POST'])
 def restore():
     # find the path to sqlite database
-    if db_path.startswith("sqlite:///"):
-        actual_db_path = db_path[len("sqlite:///"):]
-    else:
-        actual_db_path = db_path
+    BASE_DIR = '/adhdo_app/data/'  # Define this at the top of your script or as a configuration option.
+    actual_db_path = os.path.join(BASE_DIR, 'adhdo.db')
 
     # Check if a file was posted
     if 'dbfile' not in request.files:

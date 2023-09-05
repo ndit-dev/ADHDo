@@ -41,5 +41,12 @@ docker-compose build
 ```
 to start or restart the container with the latest changes use `docker-compose up` or `docker-compose up --build` to both build and start it in one step
 
+to create a container to load in mikrotik router, use
+```
+docker buildx build --platform linux/arm64 -t adhdo:latest . --load 
+docker save -o adhdo.tar adhdo:latest
+```
+and then trasnfer the file to the router
+
 ### dont forget
 to disable debug mode and develeopment mode before setting it production

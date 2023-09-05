@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>📋 ADHDo - {% block title %}Default Title{% endblock %}</title>
+  <title>ADHDo - {% block title %}Default Title{% endblock %}</title>
   
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,9 +26,9 @@
       <div class="nav-left">
         <a class="brand" href="#"><img src="/static/adhdo.png"> ADHDo</a>
         <div class="tabs">
-          <a href="/">Tasks</a>
-          <a href="settings">settings</a>
-          <a href="about">about</a>
+          <a class="{% block nav_home %}{% endblock %}" href="/">Tasks</a>
+          <a class="{% block nav_settings %}{% endblock %}"  href="settings">settings</a>
+          <a class="{% block nav_about %}{% endblock %}"  href="about">about</a>
         </div>
       </div>
       <div class="nav-right">

@@ -12,5 +12,4 @@ services:
       - .:/adhdo_app
     environment:
       - FLASK_ENV=development
-      - IN_DOCKER=1
     command: flask run --host=0.0.0.0 --port=80 --debug

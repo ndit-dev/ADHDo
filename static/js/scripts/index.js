@@ -46,12 +46,13 @@ function checkResetTime() {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                    } else {
-                        alert("Error: " + data.message);
-                    }
-                });
+					if (data.success) {
+						const checkboxes = document.querySelectorAll('.task-complete-checkbox');
+						checkboxes.forEach(checkbox => {
+							checkbox.checked = false; // unchecks the checkboxes
+						});
+					}
+				});
             }
         });
 }
@@ -311,17 +312,60 @@ document.addEventListener('DOMContentLoaded', function() {
 			document.querySelector("details.dropdown").removeAttribute("open");
 		}
 	});
+});
 
-	// Prevent hiding the dropdown when clicked inside the dropdown
-	document.querySelector("details.dropdown").addEventListener('click', function(event) {
-		event.stopPropagation();
-	});
+// handeling of the editing of forms
+function toggleEditTask(taskId) {
+    const formDiv = document.getElementById('edit-task-form-' + taskId);
+    if (formDiv.style.display === "none" || formDiv.style.display === "") {
+        formDiv.style.display = "block";
+    } else {
+        formDiv.style.display = "none";
+    }
+}
 
-	// Hide dropdown when clicked outside
-	document.addEventListener('click', function(event) {
-		let detailsElement = document.querySelector("details.dropdown");
-		if (!detailsElement.contains(event.target) && detailsElement.hasAttribute("open")) {
-			detailsElement.removeAttribute("open");
-		}
-	});
+document.addEventListener('DOMContentLoaded', function() {
+    var editTaskForms = document.querySelectorAll('.edit-task-form-inner'); // select all elements with this class
+
+    editTaskForms.forEach(function(editTaskForm) {
+        editTaskForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent normal form submission
+
+            // Construct the form data
+            var formData = new FormData(this);
+
+            // Send the data via AJAX
+            fetch(this.action, { // using the form's action attribute
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok'); 
+                }
+                return response.json();
+            })
+            .then(data => {
+				var taskTitleDiv = document.getElementById('task-title-' + data.task.id);
+			
+				// Check for the task title div
+				if (taskTitleDiv) {
+					taskTitleDiv.textContent = data.task.title;
+				} else {
+					console.error('Element not found:', 'task-title-' + data.task.id);
+				}
+			
+				// Hide the edit form
+				var editFormDiv = document.getElementById('edit-task-form-' + data.task.id);
+				if (editFormDiv) {
+					editFormDiv.style.display = "none";
+				} else {
+					console.error('Edit form element not found:', 'edit-task-form-' + data.task.id);
+				}
+			})
+            .catch(error => {
+                console.log('There was a problem with the fetch operation:', error.message);
+            });
+        });
+    });
 });
